@@ -1697,7 +1697,7 @@ pandas>=2.0.0              # DataFrame handling
 scipy>=1.11.0              # Statistical distributions
 
 # Optional: Advanced ML synthesis (Enterprise tier)
-# synthcity>=0.2.0         # GAN/VAE synthesis
+#  >=0.2.0         # GAN/VAE synthesis
 # torch>=2.0.0             # PyTorch for ML models
 
 # Validation

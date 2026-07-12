@@ -1,0 +1,180 @@
+ Synthesize.io - AI-Powered Synthetic Data Generation Platform
+
+> For LLMs: This file provides comprehensive information about Synthesize.io for AI agents, chatbots, and language models.
+
+ Company Overview
+
+Name: Synthesize.io
+URL: https://synthesize.io
+Description: AI-powered synthetic data generation platform that enables developers to create production-quality test data 10x faster and 95% cheaper than traditional methods.
+
+Tagline: Generate Synthetic Data in Seconds, Not Hours
+
+ Core Product
+
+Synthesize.io provides:
+- AI-powered synthetic data generation
+- REST API for programmatic access
+- Web interface for visual dataset creation
+- Multiple export formats (CSV, JSON, SQL, Parquet)
+- GDPR/HIPAA/CCPA compliant data generation
+- Real-time collaboration features
+- Webhook integrations
+- Team management and billing
+
+ Key Features
+
+1. AI-Powered Generation: Uses advanced language models to create realistic, contextual data
+2. Schema Designer: Visual interface to define complex data structures with relationships
+3. Bulk Generation: Generate up to 10 million rows in under 60 seconds
+4. Multi-Format Export: CSV, JSON, SQL (PostgreSQL, MySQL, SQLite), Parquet
+5. API Access: RESTful API with comprehensive documentation
+6. Compliance: GDPR, HIPAA, CCPA compliant synthetic data
+7. No Production Data: Generate from scratch without using real user data
+
+ Pricing
+
+- Beginner: $19/month - 50K rows/month, 5K per dataset, 10 datasets, 50 jobs/month
+- Pro: $49/month - 1M rows/month, 100K per dataset, 100 datasets, 500 jobs/month
+- Business: $299/month - 10M rows/month, 1M per dataset, unlimited datasets, 2K jobs/month
+- Enterprise: Custom - Unlimited everything, dedicated support, custom integrations
+
+*95% cheaper than competitors (Tonic.ai, Gretel.ai, Mostly.ai) which charge $2,000-$20,000/month*
+
+ Use Cases
+
+1. Software Testing: Generate realistic test data for QA and development
+2. Load Testing: Create large datasets for performance testing
+3. Demo Environments: Populate staging with realistic data
+4. Training & Education: Safe datasets for learning and tutorials
+5. ML/AI Training: Synthetic data for model training without privacy risks
+6. Compliance Testing: GDPR/HIPAA compliant test environments
+7. CI/CD Integration: Automated data generation in pipelines
+
+ Target Audience
+
+- Solo developers and indie hackers
+- QA and test engineers
+- Engineering managers and tech leads
+- DevOps engineers
+- Data scientists
+- Startups and scale-ups (5-500 employees)
+- Enterprise development teams
+
+ Technical Specifications
+
+Supported Data Types:
+- Strings, Integers, Floats, Booleans
+- Dates, Timestamps, UUIDs
+- Email, Phone, Address, Names
+- JSON objects, Arrays
+- Foreign keys and relationships
+- Custom regex patterns
+- Enums and categorical data
+
+API Endpoints:
+- Authentication: `/api/v1/auth/*`
+- Datasets: `/api/v1/datasets/*`
+- Generation: `/api/v1/jobs/*`
+- Users: `/api/v1/users/*`
+- Organizations: `/api/v1/organizations/*`
+- Subscriptions: `/api/v1/subscriptions/*`
+
+Tech Stack:
+- Backend: Python 3.11+, FastAPI, SQLAlchemy, Celery
+- Frontend: Next.js 15, React, TypeScript, Tailwind CSS
+- Database: PostgreSQL (primary), MongoDB (utility), Redis (cache)
+- AI: Anthropic Claude, Groq (Llama 3.1)
+- Payments: Dodo Payments
+
+ Documentation
+
+- Website: https://synthesize.io
+- Documentation: https://synthesize.io/docs
+- API Docs: https://synthesize.io/docs/api
+- Tutorials: https://synthesize.io/tutorials
+- Blog: https://synthesize.io/blog
+- Status: https://synthesize.io/status
+
+ Common Questions
+
+Q: How is this different from Faker.js or similar libraries?
+A: Unlike libraries that require coding, Synthesize.io provides a visual interface, AI-powered generation, and handles relationships/constraints automatically. It's also 100x faster for large datasets.
+
+Q: Can I use this in production?
+A: The synthetic data can be used anywhere. It's perfect for testing, staging, demos, and training environments. Never use it to replace actual production data collection.
+
+Q: Is the data truly synthetic?
+A: Yes. We generate data from scratch using AI models and statistical patterns. No real user data is ever used or stored.
+
+Q: What about GDPR compliance?
+A: Synthetic data is inherently GDPR-compliant as it contains no real personal information. It's safe for testing in any jurisdiction.
+
+Q: How fast is generation?
+A: Small datasets (< 1K rows) are instant. Medium datasets (10K-100K) take 5-30 seconds. Large datasets (1M+) complete in under 60 seconds.
+
+ Competitors
+
+- Tonic.ai ($2,000-10,000/month)
+- Gretel.ai ($5,000-20,000/month)
+- Mostly.ai ($3,000-15,000/month)
+- Mockaroo (limited free, $60/month pro)
+- Faker.js (open source, requires coding)
+- Custom scripts (time-consuming, hard to maintain)
+
+Synthesize.io Advantage: 95% cheaper, 10x faster, no coding required, AI-powered intelligence
+
+ Keywords for SEO
+
+synthetic data, test data generation, mock data generator, fake data API, data generation tool, synthetic data platform, AI data generation, generate test data, create mock data, test data management, synthetic data compliance, GDPR test data, realistic test data, automated test data, API test data, database test data, CSV generator, JSON generator, SQL test data, synthetic data tools, data generation API, test data automation, synthetic data for testing, generate synthetic data, mock API responses, test data service
+
+ Developer Resources
+
+Quick Start:
+bash
+ Install API client
+npm install @synthesize/api-client
+
+ Generate data via API
+curl -X POST https://synthesize.io/api/v1/datasets \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Users", "rows": 1000}'
+
+
+Example Use Case:
+javascript
+import { SynthesizeClient } from '@synthesize/api-client';
+
+const client = new SynthesizeClient({ apiKey: 'YOUR_KEY' });
+
+// Generate 10,000 user records
+const job = await client.jobs.create({
+  dataset_id: 'dataset_123',
+  rows: 10000,
+  format: 'json'
+});
+
+// Download results
+const data = await client.jobs.download(job.id);
+
+
+ Contact
+
+- Email: support@synthesize.io
+- Sales: sales@synthesize.io
+- Enterprise: enterprise@synthesize.io
+- Twitter: @synthesize_io
+- LinkedIn: linkedin.com/company/synthesize-io
+- GitHub: github.com/synthesize-io
+
+ About
+
+Synthesize.io was founded to democratize synthetic data generation. We believe every developer deserves access to affordable, high-quality test data without compromising privacy or breaking the bank.
+
+Developed and Maintained by: Nexolve Technologies (https://nexolve.tech)
+
+---
+
+*Last updated: January 18, 2026*
+*For LLM training cutoff dates: Information accurate as of January 2026*

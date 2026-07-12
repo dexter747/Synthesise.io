@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Synthesize.io Dark Theme - Sleek Black, Silver, Teal Green */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+    
+    /* Teal Green - Brand Primary */
+    --primary: 168 76% 42%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Silver - Secondary */
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 85%;
+    
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+    
+    /* Teal Accent */
+    --accent: 168 76% 42%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 168 76% 42%;
+    
+    --radius: 0.75rem;
+    
+    /* Chart colors */
+    --chart-1: 168 76% 42%;
+    --chart-2: 168 60% 55%;
+    --chart-3: 200 70% 50%;
+    --chart-4: 280 60% 55%;
+    --chart-5: 340 70% 55%;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 168 76% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 168 76% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-medium antialiased;
+  }
+  
+  /* Ensure font-medium is the default everywhere */
+  html {
+    font-weight: 500;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Gradient utilities */
+  .gradient-teal {
+    @apply bg-gradient-to-r from-teal-500 to-emerald-500;
+  }
+  
+  .gradient-teal-text {
+    @apply bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent;
+  }
+  
+  .gradient-border {
+    @apply relative before:absolute before:inset-0 before:rounded-[inherit] before:p-[1px] before:bg-gradient-to-r before:from-teal-500/50 before:to-emerald-500/50 before:-z-10;
+  }
+  
+  /* Glass effect */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/5;
+  }
+  
+  /* Glow effects */
+  .glow-teal {
+    box-shadow: 0 0 40px -10px hsl(168 76% 42% / 0.3);
+  }
+  
+  .glow-teal-sm {
+    box-shadow: 0 0 20px -5px hsl(168 76% 42% / 0.25);
+  }
+  
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Animation utilities */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 4s ease-in-out infinite;
+  }
+  
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+  
+  /* Hide scrollbar */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes border-beam {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes title-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% { 
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% { 
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  0% { 
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  100% { 
+    transform: translateX(0);
+    opacity: 0.95;
+  }
+}
+
+@keyframes textPopUp {
+  0% { 
+    transform: translateY(60px) scale(0.8); 
+    opacity: 0; 
+  }
+  60% { 
+    transform: translateY(-8px) scale(1.05); 
+    opacity: 0.9; 
+  }
+  100% { 
+    transform: translateY(0) scale(1); 
+    opacity: 1; 
+  }
+}
+
+@keyframes subtitleSlideUp {
+  0% { 
+    transform: translateY(40px); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes buttonSlideUp {
+  0% { 
+    transform: translateY(50px); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientSlide {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.animate-border-beam {
+  animation: border-beam 8s linear infinite;
+}
+
+.animate-title-gradient {
+  background-size: 200% auto;
+  animation: title-gradient 3s linear infinite;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 1.2s ease-out 0.5s both;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 1.2s ease-out 0.7s both;
+}
+
+.animate-text-popup {
+  animation: textPopUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-subtitle-slide {
+  animation: subtitleSlideUp 0.8s ease-out 0.3s both;
+}
+
+.animate-button-slide {
+  animation: buttonSlideUp 0.7s ease-out 0.8s both;
+}
+
+.animate-gradient-shift {
+  background-size: 300% 300%;
+  animation: gradientShift 6s ease-in-out infinite;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(0 0% 7%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 20%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(0 0% 30%);
+}
+
+/* Selection color */
+::selection {
+  background: hsl(168 76% 42% / 0.3);
+  color: white;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: 2px solid hsl(168 76% 42%);
+  outline-offset: 2px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}

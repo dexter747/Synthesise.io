@@ -1,0 +1,295 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: synthesize-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-synthesize}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-synthesize_password}
+      POSTGRES_DB: ${POSTGRES_DB:-synthesizedb}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-synthesize}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+
+  # MongoDB Database (for utility data: logs, analytics, usage tracking)
+  mongodb:
+    image: mongo:7-jammy
+    container_name: synthesize-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-synthesize_utility}
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: synthesize-redis
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+
+  # Frontend - User Web App
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/web.Dockerfile
+    container_name: synthesize-web
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+      - NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
+    depends_on:
+      - api
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Frontend - Admin Portal
+  admin:
+    build:
+      context: .
+      dockerfile: ./docker/admin.Dockerfile
+    container_name: synthesize-admin
+    ports:
+      - "${ADMIN_PORT:-3001}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    depends_on:
+      - api
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Backend API - Lightweight Controller (Brain)
+  # FastAPI handles HTTP requests, authentication, orchestration
+  # Heavy processing is delegated to Celery workers
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: synthesize-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://synthesize:synthesize_password@postgres:5432/synthesizedb}
+      - MONGODB_URL=${MONGODB_URL:-mongodb://mongodb:27017}
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-synthesize_utility}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/2}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
+      - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - DODO_API_KEY=${DODO_API_KEY}
+      - DODO_WEBHOOK_SECRET=${DODO_WEBHOOK_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - DATA_UPLOAD_DIR=${DATA_UPLOAD_DIR:-/app/data/uploads}
+      - DATA_OUTPUT_DIR=${DATA_OUTPUT_DIR:-/app/data/generated}
+      - DATA_MODELS_DIR=${DATA_MODELS_DIR:-/app/data/models}
+    volumes:
+      - ./data/generated:/app/data/generated
+      - ./data/uploads:/app/data/uploads
+      - ./data/models:/app/data/models
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Celery Workers - Heavy Processing (Muscles)
+  # Handles data generation, exports, validations
+  # Runs separately from API to avoid blocking requests
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: synthesize-celery-worker
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2 --queues=generation,notifications,cleanup
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://synthesize:synthesize_password@postgres:5432/synthesizedb}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/2}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - DATA_UPLOAD_DIR=${DATA_UPLOAD_DIR:-/app/data/uploads}
+      - DATA_OUTPUT_DIR=${DATA_OUTPUT_DIR:-/app/data/generated}
+      - DATA_MODELS_DIR=${DATA_MODELS_DIR:-/app/data/models}
+    volumes:
+      - ./data/generated:/app/data/generated
+      - ./data/uploads:/app/data/uploads
+      - ./data/models:/app/data/models
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+
+  # Celery Beat - Task Scheduler (Cron)
+  # Schedules periodic tasks like cleanup, stats calculation
+  # Only one instance needed (not scaled)
+  celery-beat:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: synthesize-celery-beat
+    command: celery -A app.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://synthesize:synthesize_password@postgres:5432/synthesizedb}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: synthesize-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./data/generated:/var/www/data:ro
+    depends_on:
+      - web
+      - admin
+      - api
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Flower - Celery Monitoring Dashboard
+  # Real-time monitoring of Celery workers, tasks, and queues
+  # Access: http://localhost:5555
+  flower:
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    container_name: synthesize-flower
+    command: celery -A app.celery_app flower --port=5555 --broker=redis://redis:6379/1
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/1}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/2}
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # pgAdmin - PostgreSQL Web Interface
+  # Database management, query builder, schema visualization
+  # Access: http://localhost:5050
+  # Default credentials: admin@synthesize.io / admin (change in production!)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: synthesize-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@synthesize.io}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - synthesize-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+volumes:
+  postgres_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  synthesize-network:
+    driver: bridge

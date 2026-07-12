@@ -1,0 +1,8 @@
+# Docker-specific requirements
+# This file includes SDV which requires Python <3.13 (Docker uses Python 3.11)
+
+# Include all base requirements
+-r requirements.txt
+
+# SDV for Synthcity ML models (Python 3.11 only)
+sdv==1.17.3

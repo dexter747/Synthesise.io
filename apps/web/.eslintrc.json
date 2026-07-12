@@ -1,0 +1,3 @@
+{
+  "extends": "@synthesize/config/eslint-next.json"
+}

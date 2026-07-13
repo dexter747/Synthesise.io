@@ -3,4 +3,4 @@ title = "Synthesize.io gitleaks config"
 useDefault = true
 [allowlist]
 description = "Docstring examples, doc snippets, and test fixtures — verified no real secrets"
-paths = ['''\.md$''', '''\.txt$''', '''apps/api/app/utils/helpers\.py''', '''apps/api/tests/''', '''apps/web/src/app/settings/api-keys/page\.tsx''', '''apps/web/src/app/checkout/page\.tsx''']
+paths = ['''\.md$''', '''\.txt$''', '''apps/api/app/utils/helpers\.py''', '''apps/api/tests/''', '''apps/web/src/app/settings/api-keys/page\.tsx''', '''apps/web/src/app/checkout/page\.tsx''', '''apps/web/src/app/blog/''', '''apps/web/public/llms\.txt''']
